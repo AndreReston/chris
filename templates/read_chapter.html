@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="reader">
+    <h2>{{ chapter.title }}</h2>
+    <p class="byline">in <a href="{{ url_for('view_book', book_id=book.id) }}">{{ book.title }}</a></p>
+    <div class="chapter-content">
+        {{ chapter.content | safe }}
+    </div>
+        <div class="reader-meta" style="margin-top:18px; display:flex;justify-content:space-between;align-items:center;gap:12px;">
+            <div class="likes" style="display:flex;align-items:center;gap:8px;">
+                <a href="{{ url_for('like_chapter', chapter_id=chapter.id) }}" class="like-btn">👍</a>
+                <span class="like-count">{{ likes }}</span>
+                <a href="#" onclick="toggleList('who-liked');return false;" class="muted">Who liked?</a>
+                <div id="who-liked" style="display:none;margin-left:6px;font-size:0.9em;color:#cfcfcf;">
+                    {% if like_users %}
+                        {% for u in like_users %}
+                            <a href="{{ url_for('profile', user_id=u.id) }}">{{ u.username }}</a>{% if not loop.last %}, {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <span class="muted">No likes yet</span>
+                    {% endif %}
+                </div>
+
+                <a href="{{ url_for('dislike_chapter', chapter_id=chapter.id) }}" class="dislike-btn">👎</a>
+                <span class="dislike-count">{{ dislikes }}</span>
+                <a href="#" onclick="toggleList('who-disliked');return false;" class="muted">Who disliked?</a>
+                <div id="who-disliked" style="display:none;margin-left:6px;font-size:0.9em;color:#cfcfcf;">
+                    {% if dislike_users %}
+                        {% for u in dislike_users %}
+                            <a href="{{ url_for('profile', user_id=u.id) }}">{{ u.username }}</a>{% if not loop.last %}, {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <span class="muted">No dislikes yet</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="reader-nav">
+                {% if prev %}
+                    <a href="{{ url_for('read_chapter', chapter_id=prev.id) }}">&larr; {{ prev.title }}</a>
+                {% endif %}
+                {% if next %}
+                    <a href="{{ url_for('read_chapter', chapter_id=next.id) }}">{{ next.title }} &rarr;</a>
+                {% endif %}
+            </div>
+        </div>
+
+        <section class="chapter-comments" style="margin-top:22px;">
+            <h3>Comments</h3>
+            {% if session.get('user_id') %}
+                <form method="POST" action="{{ url_for('chapter_comment', chapter_id=chapter.id) }}">
+                    <textarea name="content" placeholder="Write a comment..." required></textarea>
+                    <button type="submit">Post Comment</button>
+                </form>
+            {% else %}
+                <p><a href="{{ url_for('login') }}">Login</a> to comment.</p>
+            {% endif %}
+
+            {% for c in chapter_comments %}
+            <div class="comment">
+                <p><strong><a href="{{ url_for('profile', user_id=c.user_id) }}">{{ c.username }}</a>:</strong> {{ c.content }}</p>
+                <div class="comment-actions">
+                    <a href="{{ url_for('like_chapter_comment', comment_id=c.id) }}">👍 {{ c.likes }}</a>
+                    <a href="{{ url_for('dislike_chapter_comment', comment_id=c.id) }}">👎 {{ c.dislikes }}</a>
+                </div>
+            </div>
+            {% endfor %}
+        </section>
+
+    <script>
+    function toggleList(id){
+        const el = document.getElementById(id);
+        if(!el) return;
+        el.style.display = (el.style.display === 'none' || el.style.display === '') ? 'inline' : 'none';
+    }
+    </script>
+</div>
+    <script>
+    // Keyboard navigation: left/right arrows go to previous/next chapters when available
+    document.addEventListener('keydown', function(e){
+        if(e.key === 'ArrowLeft'){
+            const prev = document.querySelector('.reader-nav a[href*="/chapter/"]');
+            if(prev){ prev.click(); }
+        }
+        if(e.key === 'ArrowRight'){
+            // pick the second link if two exist
+            const links = document.querySelectorAll('.reader-nav a[href*="/chapter/"]');
+            if(links.length === 1){ links[0].click(); }
+            else if(links.length >= 2){ links[1].click(); }
+        }
+    });
+    </script>
+{% endblock %}

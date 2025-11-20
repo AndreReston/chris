@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bookworm</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<!-- Using plain textarea editor to avoid external TinyMCE API key issues -->
+<script>
+// No rich editor by default. If you want a client-side WYSIWYG, install and configure a free editor (e.g., Quill).
+// For now, we leave a plain textarea so typing always works.
+</script>
+</head>
+<body>
+<nav>
+    <div class="logo"><a href="{{ url_for('home') }}">Bookworm</a></div>
+    <div class="nav-links">
+        <form action="{{ url_for('search') }}" method="get" style="display:inline;">
+            <input type="text" name="q" placeholder="Search books or authors..." class="search-input">
+            <button type="submit">Search</button>
+        </form>
+        {% if session.get('user_id') %}
+            <span>Hello, {{ session.get('username') }}</span>
+            | <a href="{{ url_for('create_book') }}">Create Book</a>
+            | <a href="{{ url_for('dashboard') }}">Dashboard</a>
+            | <a href="{{ url_for('profile', user_id=session.get('user_id')) }}">Profile</a>
+            | <a href="{{ url_for('logout') }}">Logout</a>
+        {% else %}
+            <a href="{{ url_for('login') }}">Login</a> | <a href="{{ url_for('signup') }}">Sign Up</a>
+        {% endif %}
+    </div>
+</nav>
+
+<div class="container">
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="flash">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+{% block content %}{% endblock %}
+</div>
+
+<!-- Book Modal -->
+<div id="bookModal">
+    <div class="modal-content">
+        <span class="close" onclick="closeBookModal()">&times;</span>
+        <div id="modalContent"></div>
+    </div>
+</div>
+
+<script>
+let chaptersData=[];
+let currentChapterIndex = -1;
+
+function openBookModal(bookId){
+    fetch(`/book_data/${bookId}`)
+    .then(res=>res.json())
+    .then(data=>{
+        chaptersData = data.chapters || [];
+        currentChapterIndex = -1; // no chapter selected by default
+        renderModal(data);
+        document.getElementById('bookModal').style.display='block';
+    });
+}
+
+function renderModal(bookData){
+    let content = `<h2>${bookData.title}</h2>
+    <img src="${bookData.cover_image || 'https://via.placeholder.com/200x300'}" class="modal-cover">
+    <div class="book-synopsis"><p>${bookData.synopsis}</p></div>`;
+
+    if(chaptersData.length>0){
+        content += '<h3>Chapters</h3><ol class="modal-chapter-list">';
+            chaptersData.forEach((c, idx) => {
+                if(c.external_url){
+                    // open external reader in same tab (transfer to other site)
+                    content += `<li><a href="${c.external_url}">${c.title}</a></li>`;
+                } else {
+                    // navigate to the full reader page for a Wattpad-like experience
+                    content += `<li><a href="/chapter/${c.id}">${c.title}</a></li>`;
+                }
+            });
+        content += '</ol>';
+        content += '<div id="chapterContent"></div>';
+    } else {
+        content += '<p>No chapters yet.</p>';
+    }
+
+    document.getElementById('modalContent').innerHTML = content;
+}
+
+function showChapterContent(index){
+    if(index < 0 || index >= chaptersData.length) return;
+    currentChapterIndex = index;
+    const c = chaptersData[index];
+    const prev = index > 0 ? `<a href="#" onclick="showChapterContent(${index-1});return false;">&larr; ${chaptersData[index-1].title}</a>` : '';
+    const next = index < chaptersData.length-1 ? `<a href="#" onclick="showChapterContent(${index+1});return false;">${chaptersData[index+1].title} &rarr;</a>` : '';
+    let html = `<h4>${c.title}</h4><div class="chapter-body">${c.content}</div><div class="reader-nav">${prev} ${next}</div>`;
+    document.getElementById('chapterContent').innerHTML = html;
+}
+
+function prevChapter(){
+    if(currentChapterIndex > 0) showChapterContent(currentChapterIndex - 1);
+}
+function nextChapter(){
+    if(currentChapterIndex < chaptersData.length - 1) showChapterContent(currentChapterIndex + 1);
+}
+function closeBookModal(){ document.getElementById('bookModal').style.display='none'; }
+</script>
+</body>
+</html>

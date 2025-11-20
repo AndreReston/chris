@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Add Chapter to {{ book.title }}</h2>
+<form method="POST" enctype="multipart/form-data">
+        <input type="text" name="title" placeholder="Chapter Title" required>
+
+        <!-- No image for chapters: only title and content -->
+
+        <textarea id="content" name="content" placeholder="Chapter Content" required></textarea>
+        <button type="submit">Add Chapter</button>
+    </form>
+
+    <!-- image options removed for chapters -->
+<script>
+// Ensure TinyMCE content is saved into the textarea before submit
+(function(){
+    const form = document.querySelector('form[enctype]');
+    if (!form) return;
+    form.addEventListener('submit', function(e){
+        // Ensure textarea is enabled so the browser includes it in the POST
+        const ta = document.getElementById('content');
+        if (ta && ta.disabled) ta.disabled = false;
+    });
+})();
+</script>
+{% endblock %}

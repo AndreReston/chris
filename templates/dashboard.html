@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Dashboard</h2>
+<p>Manage your books and chapters</p>
+<a href="{{ url_for('create_book') }}"><button>Create New Book</button></a>
+<div class="books-grid">
+{% for book in books %}
+<div class="book-card">
+        {% set cover = book.cover_url %}
+        {% if cover %}
+            <img src="{{ cover }}" alt="{{ book.title }} cover">
+        {% else %}
+            <img src="https://via.placeholder.com/300x400" alt="No cover">
+        {% endif %}
+        <h3>{{ book.title }}</h3>
+        <a href="{{ url_for('create_chapter', book_id=book.id) }}"><button>Add Chapter</button></a>
+        <a href="{{ url_for('view_book', book_id=book.id) }}"><button>View Book</button></a>
+</div>
+{% else %}
+<p>No books yet.</p>
+{% endfor %}
+</div>
+{% endblock %}

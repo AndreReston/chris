@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Latest Books</h1>
+{% if books %}
+  <div class="books-grid">
+  {% for book in books %}
+    <div class="book-card">
+      <h3>{{ book.title }}</h3>
+      {% set cover = book.cover_url %}
+      {% if cover %}
+        <img src="{{ cover }}" alt="{{ book.title }} cover">
+      {% else %}
+        <img src="https://via.placeholder.com/200x300" alt="No cover">
+      {% endif %}
+      <p><small>By {{ book.author.username if book.author else 'Unknown' }}</small></p>
+      <button onclick="openBookModal({{ book.id }})">View</button>
+    </div>
+  {% endfor %}
+  </div>
+{% else %}
+  <p>No books yet. <a href="{{ url_for('create_book') }}">Create the first book</a>.</p>
+{% endif %}
+
+<style>
+.books-grid{display:flex;flex-wrap:wrap;gap:16px}
+.book-card{border:1px solid #ddd;padding:12px;width:220px}
+</style>
+
+{% endblock %}

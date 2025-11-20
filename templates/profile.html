@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>{{ user.username }}'s Profile</h2>
+<p>Email: {{ user.email }}</p>
+<h3>Books by {{ user.username }}</h3>
+<div class="books-grid">
+{% for book in books %}
+<div class="book-card" onclick="openBookModal({{ book.id }})">
+    <img src="{{ book.cover_url or 'https://via.placeholder.com/300x400' }}" alt="{{ book.title }} cover">
+    <h3>{{ book.title }}</h3>
+    </div>
+{% else %}
+<p>No books yet.</p>
+{% endfor %}
+</div>
+{% endblock %}

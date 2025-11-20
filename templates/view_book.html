@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>{{ book.title }}</h2>
+<img src="{{ book.cover_url or 'https://via.placeholder.com/200x300' }}" class="book-cover">
+<p>{{ book.synopsis }}</p>
+<h3>Chapters</h3>
+{% if book.chapters %}
+<ol class="chapter-list">
+{% for chapter in book.chapters %}
+    {% set ext = (config.EXTERNAL_READER_BASE and (config.EXTERNAL_READER_BASE.rstrip('/') ~ '/book/' ~ book.id|string ~ '/chapter/' ~ chapter.id|string)) %}
+    {% if ext %}
+        <li><a href="{{ ext }}">{{ chapter.title }}</a></li>
+    {% else %}
+        <li><a href="{{ url_for('read_chapter', chapter_id=chapter.id) }}">{{ chapter.title }}</a></li>
+    {% endif %}
+{% endfor %}
+</ol>
+{% else %}
+<p>No chapters yet.</p>
+{% endif %}
+{% if session.get('user_id') == book.author_id %}
+<a href="{{ url_for('create_chapter', book_id=book.id) }}"><button>Add Chapter</button></a>
+{% endif %}
+
+<h3>Comments</h3>
+{% if session.get('user_id') %}
+<form method="POST" action="{{ url_for('comment', book_id=book.id) }}">
+    <textarea name="content" placeholder="Write a comment..." required></textarea>
+    <button type="submit">Post Comment</button>
+</form>
+{% else %}
+<p><a href="{{ url_for('login') }}">Login</a> to comment.</p>
+{% endif %}
+
+{% for comment in comments %}
+<div class="comment">
+    <p>{{ comment.content }}</p>
+    <div class="comment-actions">
+        <a href="{{ url_for('like_comment', comment_id=comment.id) }}">👍 {{ comment.likes }}</a>
+        <a href="{{ url_for('dislike_comment', comment_id=comment.id) }}">👎 {{ comment.dislikes }}</a>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}

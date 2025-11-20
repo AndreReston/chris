@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Create Book</h2>
+<form method="POST" enctype="multipart/form-data">
+        <input type="text" name="title" placeholder="Book Title" required>
+        <textarea name="synopsis" placeholder="Synopsis" required></textarea>
+
+        <div>
+            <label><input type="radio" name="cover_choice" value="file" checked> Upload cover file</label>
+            <label style="margin-left:12px;"><input type="radio" name="cover_choice" value="url"> Use image URL</label>
+        </div>
+
+        <div id="cover-file-group">
+            <input type="file" name="cover_file" id="cover_file">
+        </div>
+        <div id="cover-url-group" style="display:none;">
+            <input type="url" name="cover_url" id="cover_url" placeholder="https://example.com/image.jpg">
+        </div>
+
+        <button type="submit">Create Book</button>
+    </form>
+
+    <script>
+        const coverRadios = document.getElementsByName('cover_choice');
+        const fileGroup = document.getElementById('cover-file-group');
+        const urlGroup = document.getElementById('cover-url-group');
+        function updateCoverChoice(){
+            const val = Array.from(coverRadios).find(r=>r.checked).value;
+            if(val==='file'){ fileGroup.style.display='block'; urlGroup.style.display='none'; }
+            else { fileGroup.style.display='none'; urlGroup.style.display='block'; }
+        }
+        Array.from(coverRadios).forEach(r=>r.addEventListener('change', updateCoverChoice));
+    </script>
+{% endblock %}
