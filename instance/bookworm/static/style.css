@@ -1,6 +1,4 @@
-/* DARK MODE THEME — Elegant, Clean, Modern */
 
-/* Reset */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -9,7 +7,7 @@ body {
     line-height: 1.6;
 }
 
-/* Navbar */
+
 nav {
     background: #18181b;
     padding: 15px 20px;
@@ -37,21 +35,54 @@ nav .nav-links a:hover {
 }
 
 /* Search Bar */
+.search-form {
+    display: flex;             /* keep input and button in one row */
+    align-items: center;       /* vertical alignment */
+    max-width: 400px;          /* optional: limits form width */
+    margin: 0 auto;            /* center horizontally if needed */
+    gap: 6px;                  /* space between input and button */
+}
+
 .search-input {
-    padding: 7px 12px;
+    flex: 1;                   /* input takes all available space */
+    padding: 8px 12px;
     border-radius: 6px;
     border: 1px solid #2d2d31;
     background: #1c1c20;
     color: #fff;
+    font-size: 1em;
 }
 
+.search-button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    background: #ff8b3d;
+    color: #111;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.search-button:hover {
+    background: #ffa45c;
+    transform: scale(1.05);
+}
 /* Container */
 .container {
     max-width: 1150px;
     margin: 35px auto;
     padding: 0 18px;
 }
-
+.book-card img {
+    width: 100%;
+    height: auto;
+    max-height: 320px;
+    object-fit: contain;     /* keeps whole image, adds letterbox if needed */
+    background: #0f0f11;
+    padding: 6px;
+    display: block;
+}
 /* Flash Messages */
 .flash {
     background: #3d1a1a;
@@ -106,11 +137,14 @@ button:hover {
 }
 
 .modal-cover {
-    width: 200px;
-    height: 300px;
-    object-fit: cover;
-    border-radius: 10px;
-    margin: 0;
+    width: 220px;
+    height: auto;
+    max-height: 320px;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto 15px;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.6);
 }
 
 .modal-chapter-list {
@@ -311,6 +345,13 @@ button:hover {
     font-size: 1.05rem;
     color: #e8e8e8;
     letter-spacing: 0.2px;
+}
+.chapter-content img {
+    max-width: 100%;      /* cannot exceed parent width */
+    height: auto;         /* maintain aspect ratio */
+    display: block;
+    margin: 14px auto;
+    border-radius: 8px;
 }
 .chapter-content p { margin: 0 0 1.15em 0; }
 .chapter-content h3, .chapter-content h4 { margin: 1.2em 0 0.6em; }
